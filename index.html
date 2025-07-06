@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head><title>Digit Recognizer</title></head>
+<body>
+  <canvas id="canvas" width="280" height="280" style="border:1px solid black;"></canvas><br>
+  <button onclick="clearCanvas()">Clear</button>
+  <button onclick="predict()">Predict</button>
+  <h3 id="result"></h3>
+
+  <script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(e.offsetX, e.offsetY, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById("result").innerText = "";
+    }
+
+    function predict() {
+      let imageData = canvas.toDataURL("image/png").split(',')[1];
+
+      fetch("https://your-app-name.onrender.com/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({image: imageData})
+      })
+      .then(res => res.json())
+      .then(data => document.getElementById("result").innerText = "Predicted: " + data.prediction);
+    }
+  </script>
+</body>
+</html>
